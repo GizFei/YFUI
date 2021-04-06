@@ -1,0 +1,4 @@
+include ':practice'
+include ':yfui'
+include ':app'
+rootProject.name = "YFUI"

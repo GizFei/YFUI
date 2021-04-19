@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -74,13 +75,19 @@ class CustomSeekBar @JvmOverloads constructor(
         }
     }
 
-    fun setOnSeekBarChangeListener(listener: SeekBar.OnSeekBarChangeListener) {
+    fun setOnSeekBarChangeListener(listener: SeekBar.OnSeekBarChangeListener, call: Boolean = true) {
         mListener = listener.also {
-            it.onProgressChanged(mSeekBar, mSeekBar.progress, false)
+            if (call) {
+                it.onProgressChanged(mSeekBar, mSeekBar.progress, false)
+            }
         }
     }
 
+    fun setProgress(progress: Int) { mSeekBar.progress = progress }
+
     fun getProgress(): Int = mSeekBar.progress
+
+    fun setMaxProgress(max: Int) { mSeekBar.max = max }
 
     fun getMaxProgress(): Int = mSeekBar.max
 

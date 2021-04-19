@@ -40,7 +40,7 @@ class DrawBasicsActivity : AppCompatActivity() {
             "drawLine" to R.layout.page_drawbasics_draw_line,
             "drawArc" to R.layout.page_drawbasics_draw_arc,
             "drawPath" to R.layout.page_drawbasics_draw_path,
-            "Histogram" to R.layout.page_drawbasics_draw_circle,
+            "Histogram" to R.layout.page_drawbasics_draw_bitmap,
             "PieChart" to R.layout.page_drawbasics_draw_circle,
             "DynamicPath" to R.layout.page_drawbasics_draw_dynamic_path
         )

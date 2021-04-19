@@ -27,6 +27,47 @@
                 android:layout_height="wrap_content"
                 android:text="自定义视图-绘制基础"
                 android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
+            <Button
+                android:id="@+id/btn_draw_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自定义视图-drawText相关"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
+            <Button
+                android:id="@+id/btn_square_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="自定义视图-SquareImageView"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
+            <Button
+                android:id="@+id/btn_paint_practice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HenCoder自定义View2-Paint练习"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
+            <Button
+                android:id="@+id/btn_draw_text_practice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HenCoder自定义View3-drawText练习"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
                 tools:ignore="HardcodedText"
                 />
 

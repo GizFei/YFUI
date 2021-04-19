@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        tools:context=".hencoder.viewlayout.SquareImageViewActivity">
+
+        <FrameLayout
+            android:id="@+id/fl_square"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:background="#DDD"
+            >
+
+            <com.giz.android.practice.hencoder.viewlayout.SquareImageView
+                android:id="@+id/iv_square"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/bg_star_sky"
+                android:scaleType="centerCrop"
+                />
+
+        </FrameLayout>
+
+        <com.giz.android.practice.widget.CustomSeekBar
+            android:id="@+id/sb_width"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            />
+
+        <com.giz.android.practice.widget.CustomSeekBar
+            android:id="@+id/sb_height"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            />
+
+        <com.giz.android.practice.widget.ColorPaintingView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:cpv_cols="5"
+            app:cpv_rows="10"
+            />
+
+    </LinearLayout>
+
+</layout>

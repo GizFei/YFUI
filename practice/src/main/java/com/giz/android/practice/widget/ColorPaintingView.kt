@@ -1,17 +1,14 @@
 package com.giz.android.practice.widget
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import androidx.annotation.ColorInt
 import com.giz.android.practice.R
+import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
@@ -29,13 +26,12 @@ class ColorPaintingView @JvmOverloads constructor(
 
     // 默认宽高
     private val mDefaultWidth = 300.dp
-    private val mDefaultHeight = 200.dp
 
     // 绘制区域宽高
     private var mAreaWidth = 0f
     private var mAreaHeight = 0f
 
-    // 方块宽高、行列数
+    // 方块宽高、列数
     private var mBlockWidth = 0f
     private var mBlockHeight = 0f
     private var mCols = 10
@@ -49,31 +45,53 @@ class ColorPaintingView @JvmOverloads constructor(
     private var mZeroX = 0f
     private var mZeroY = 0f
 
-    // 二维颜色数组
-    private var mColorArray = Array(0) { IntArray(0) }
-    private val mDefaultBlockColor: Int = 0xFFDDDDDD.toInt()
+    // 颜色色块包装类列表、颜色列表
+    private val mColorBlockList = mutableListOf<ColorBlock>()
+    private val mColorList = mutableListOf<Int>()
 
-    // 方块画笔
+    private val mDefBlockColor: Int = 0xFFDDDDDD.toInt()
+
+    // 色块画笔
     private val mBlockPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    // 虚线
+    private val mDashLinePath = Path()
+    private val mDashLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeWidth = 2.dp
+        color = mDefBlockColor
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+        pathEffect = DashPathEffect(floatArrayOf(20f, 10f), 0f)
+    }
 
     init {
+        var initColorList = false
         context.obtainStyledAttributes(attrs, R.styleable.ColorPaintingView).apply {
             mCols = max(1, getInt(R.styleable.ColorPaintingView_cpv_cols, 10))
             mRows = max(1, getInt(R.styleable.ColorPaintingView_cpv_rows, 5))
+            mBlockHeight = getDimension(R.styleable.ColorPaintingView_cpv_blockHeight, 48.dp)
             mGapX = getDimension(R.styleable.ColorPaintingView_cpv_gapX, 2.dp)
             mGapY = getDimension(R.styleable.ColorPaintingView_cpv_gapY, 2.dp)
+
+            initColorList = hasValue(R.styleable.ColorPaintingView_cpv_rows)
 
             recycle()
         }
 
-        ensureColorArray()
+        // 在XML文件中定义了cpv_rows属性，则初始化灰色颜色列表。
+        if (initColorList) {
+            mColorList.addAll(List(mRows * mCols) { mDefBlockColor })
+            updateColorBlockList()
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        setMeasuredDimension(
-            getMeasuredSize(mDefaultWidth.toInt(), widthMeasureSpec, false),
-            getMeasuredSize(mDefaultHeight.toInt(), heightMeasureSpec, true)
-        )
+        val widthSize = getMeasuredSize(mDefaultWidth.toInt(), widthMeasureSpec, false)
+
+        // 根据色块的高度 + 行间距来计算高度
+        val heightSize: Int = (mGapY * (mRows - 1) + mBlockHeight * mRows + paddingTop + paddingBottom).toInt()
+
+        setMeasuredDimension(widthSize, heightSize)
     }
 
     /**
@@ -99,21 +117,33 @@ class ColorPaintingView @JvmOverloads constructor(
         mAreaWidth = width.toFloat() - paddingLeft - paddingRight
         mAreaHeight = height.toFloat() - paddingTop - paddingBottom
 
-        // 2、计算绘制区域“零点”坐标、block宽高
+        // 2、计算绘制区域“零点”坐标、block宽
         mZeroX = paddingLeft.toFloat()
         mZeroY = paddingTop.toFloat()
         mBlockWidth = (mAreaWidth - mGapX * (mCols - 1)) / mCols
-        mBlockHeight = (mAreaHeight - mGapY * (mRows - 1)) / mRows
     }
 
     override fun onDraw(canvas: Canvas) {
         Log.e("TAG", "onDraw: ")
-        // 根据每个方块的坐标绘制
-        ensureColorArray()
-        for (r in 0 until mRows) {
-            for (c in 0 until mCols) {
-                mBlockPaint.color = mColorArray[r, c]
-                canvas.drawRect(calcBlockRect(r, c), mBlockPaint)
+        // 根据每个色块的坐标绘制
+        for (block in mColorBlockList) {
+            mBlockPaint.color = block.color
+            canvas.drawRect(calcBlockRect(block.row, block.col), mBlockPaint)
+        }
+
+        // 绘制行间的虚线
+        if (mRows > 1) {
+            for (i in 0 until mRows - 1) {
+                val sx = mAreaWidth + mZeroX
+                val sy = mBlockHeight * (i + 1) + mGapY * i + mZeroY
+                mDashLinePath.apply {
+                    reset()
+                    moveTo(sx, sy)
+                    rLineTo(0f, mGapY / 2f)
+                    rLineTo(-mAreaWidth, 0f)
+                    rLineTo(0f, mGapY / 2f)
+                }
+                canvas.drawPath(mDashLinePath, mDashLinePaint)
             }
         }
     }
@@ -122,26 +152,13 @@ class ColorPaintingView @JvmOverloads constructor(
     private var mLastY = 0f
     override fun onTouchEvent(event: MotionEvent): Boolean {
 
-//        when (event.action) {
-//            MotionEvent.ACTION_DOWN -> {
-//                mLastX = event.x
-//                mLastY = event.y
-//            }
-//            MotionEvent.ACTION_UP -> {
-//                val touchX = event.x - mZeroX
-//                val touchY = event.y - mZeroY
-//
-//                val c = floor(touchX / (mBlockWidth + mGapX)).toInt()
-//                val r = floor(touchY / (mBlockHeight + mGapY)).toInt()
-//                val blockRect = calcBlockRect(r, c)
-//                Log.e("TAG", "onTouchEvent: ($touchX, $touchY)  $blockRect")
-//                if (blockRect.contains(touchX, touchY)) {
-//                    ensureColorArray()
-//                    mColorArray[r][c] = Color.BLUE
-//                    invalidate()
-//                }
-//            }
-//        }
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                mLastX = event.x
+                mLastY = event.y
+                parent.requestDisallowInterceptTouchEvent(true)
+            }
+        }
 
         val touchX = event.x - mZeroX
         val touchY = event.y - mZeroY
@@ -150,14 +167,28 @@ class ColorPaintingView @JvmOverloads constructor(
         val r = floor(touchY / (mBlockHeight + mGapY)).toInt()
         val blockRect = calcBlockRect(r, c)
         if (blockRect.contains(touchX, touchY)) {
-            ensureColorArray()
-            if (mColorArray[r, c] != Color.BLUE) {
-                mColorArray[r, c] = Color.BLUE
+            val idx = calcIndex(r, c)
+            if (idx in mColorList.indices && mColorList[idx] != Color.BLUE) {
+                updateColor(idx, Color.BLUE)
                 invalidate()
             }
         }
 
         return true
+    }
+
+    /**
+     * 更新颜色列表。重新计算行数。
+     */
+    fun updateColorList(colors: List<Int>) {
+        if (colors.isEmpty()) return
+
+        mColorList.clear()
+        mColorList.addAll(colors)
+        mRows =  ceil(mColorList.size / mCols.toFloat()).toInt()    // 根据颜色列表个数与列数，计算行数
+        updateColorBlockList()
+
+        requestLayout()
     }
 
     private fun calcBlockRect(row: Int, col: Int): RectF {
@@ -167,26 +198,37 @@ class ColorPaintingView @JvmOverloads constructor(
         return RectF(left, top, left + mBlockWidth, top + mBlockHeight)
     }
 
-
     /**
-     * 确保 [mColorArray] 的大小为 [mRows] * [mCols]
+     * 将 (r, c) 坐标转换成列表索引
      */
-    private fun ensureColorArray() {
-        if (mColorArray.size != mRows || mColorArray[0].size != mCols) {
-            mColorArray = Array(mRows) { IntArray(mCols) { mDefaultBlockColor } }
+    private fun calcIndex(r: Int, c: Int): Int = r * mCols + c
+
+    private fun updateColor(idx: Int, color: Int) {
+        if (idx in mColorList.indices) {
+            mColorList[idx] = color
+        }
+        if (idx in mColorBlockList.indices) {
+            mColorBlockList[idx].color = color
         }
     }
 
-    @ColorInt
-    private operator fun Array<IntArray>.get(r: Int, c: Int): Int =
-        getOrNull(r)?.getOrNull(c) ?: mDefaultBlockColor
-
-    private operator fun Array<IntArray>.set(r: Int, c: Int, @ColorInt color: Int) {
-        if (isNotEmpty() && r in indices && c in get(0).indices) {
-            this[r][c] = color
+    /**
+     * 更新色块列表
+     */
+    private fun updateColorBlockList() {
+        mColorBlockList.clear()
+        mColorList.forEachIndexed { idx, color ->
+            val r = idx / mCols
+            val c = idx.rem(mCols)
+            mColorBlockList.add(ColorBlock(r, c, color))
         }
     }
 
     private val Int.dp: Float get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
         this.toFloat(), context.resources.displayMetrics)
+
+    /**
+     * 颜色色块包装类
+     */
+    private data class ColorBlock(var row: Int, var col: Int, var color: Int)
 }

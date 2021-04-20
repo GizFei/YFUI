@@ -1,5 +1,6 @@
 package com.giz.android.practice.hencoder.viewlayout
 
+import android.graphics.Color
 import android.widget.SeekBar
 import com.giz.android.practice.R
 import com.giz.android.practice.common.DataBindingBaseActivity
@@ -45,5 +46,9 @@ class SquareImageViewActivity : DataBindingBaseActivity<ActivitySquareImageViewB
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         }, call = false)
+
+        mBinding.colorPaintingView.apply {
+            updateColorList(List(48) { Color.RED })
+        }
     }
 }

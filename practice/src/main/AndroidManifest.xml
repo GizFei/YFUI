@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.YFUI">
-        <activity android:name=".hencoder.viewlayout.SquareImageViewActivity"></activity>
+        <activity android:name=".window.WindowTestActivity" android:theme="@style/Theme.YFUI.NoTitle" />
+        <activity android:name=".hencoder.viewlayout.SquareImageViewActivity" />
         <activity android:name=".hencoder.customview.c3_drawText.DrawTextActivity" />
         <activity android:name=".hencoder.customview.c1_DrawBasics.DrawBasicsActivity" />
         <activity android:name=".UiPracticeMainActivity">
@@ -19,9 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".hencoder.hencoderpracticedraw2.HenCoderPracticeDraw2MainActivity" />
         <activity android:name=".hencoder.hencoderpracticedraw3.HenCoderPracticeDraw3MainActivity" />
+        <activity android:name=".hencoder.hencoderpracticedraw4.HenCoderPracticeDraw4MainActivity" />
     </application>
 
 </manifest>

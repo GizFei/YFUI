@@ -2,6 +2,8 @@ package com.giz.android.practice.hencoder.customview.c1_DrawBasics
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.Window
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -18,6 +20,7 @@ class DrawBasicsActivity : AppCompatActivity() {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_draw_basics)
 
         initView()
+        Log.w("Window", "onCreate: ${window::class.simpleName}[${window}]")
     }
 
     private fun initView() {

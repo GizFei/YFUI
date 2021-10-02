@@ -71,6 +71,26 @@
                 tools:ignore="HardcodedText"
                 />
 
+            <Button
+                android:id="@+id/btn_canvas_practice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HenCoder自定义View4-Canvas对绘制的辅助"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
+            <Button
+                android:id="@+id/btn_window_test"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="WindowTestActivity"
+                android:onClick="@{onClickListener}"
+                android:textAllCaps="false"
+                tools:ignore="HardcodedText"
+                />
+
         </LinearLayout>
 
     </ScrollView>
